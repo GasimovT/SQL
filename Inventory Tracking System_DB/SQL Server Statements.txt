@@ -1,0 +1,600 @@
+
+
+TOFIG GASIMOV
+
+Completion date: July 7, 2020
+
+----------------------------------------Table create statements---------------------------
+
+
+
+
+CREATE TABLE CUSTOMER_T
+	(CustomerID int identity(1,1) NOT NULL PRIMARY KEY,
+	CustomerFirstName varchar(20) NOT NULL,
+	CustomerLastName varchar(20) NOT NULL,
+	DateOfBirth varchar(12) NULL,
+	EmailAddress varchar(35) NOT NULL, 
+	CustomerStreet varchar(30) NOT NULL,
+	CustomerCity varchar(25) NOT NULL,
+	CustomerState char(2) NOT NULL,
+	CustomerCountry varchar(30) NOT NULL,
+	CustomerZip char(5) NOT NULL,
+	PhoneNumber varchar(15) NULL,
+	LastUpdatedBy varchar(20) NOT NULL,
+	LastUpdated datetime NOT NULL,
+);
+
+
+
+CREATE TABLE PRODUCT_T
+	(ProductID int identity(1,1) NOT NULL PRIMARY KEY,
+	ProductName varchar(100) NOT NULL,
+	InventoryProcessed int NOT NULL,
+	InventorySold int NOT NULL,
+	Price varchar(10) NOT NULL,
+	ExpirationDate varchar(12) NULL,
+	Description varchar(50) NOT NULL,
+	LastUpdatedBy varchar(20) NOT NULL,
+	LastUpdated datetime NOT NULL,
+);
+
+
+
+CREATE TABLE PRODUCT_CATEGORY_T
+	(CategoryID  int NOT NULL PRIMARY KEY,
+	CategoryName varchar(50) NULL,
+	Description varchar(50) NULL,
+	ProductID int FOREIGN KEY REFERENCES PRODUCT_T(ProductID),
+	LastUpdatedBy varchar(20) NOT NULL,
+	LastUpdated datetime NOT NULL,
+);
+
+
+CREATE TABLE WAREHOUSE_T
+	(WarehouseID int identity(1,1) NOT NULL PRIMARY KEY,
+	WarehouseStreet varchar(30) NOT NULL,
+	WarehouseCity varchar(25) NOT NULL,
+	WarehouseState char(2) NOT NULL,
+	WarehouseCountry varchar(30) NOT NULL,
+	WarehouseZip varchar(5) NOT NULL,
+	PhoneNumber varchar(15) NOT NULL,
+	LastUpdatedBy varchar(20) NOT NULL,
+	LastUpdated datetime NOT NULL,
+);
+
+
+
+CREATE TABLE SUPPLIER_T
+	(SupplierID int identity(1,1) NOT NULL PRIMARY KEY,
+	SupplierStreet varchar(30) NOT NULL,
+	SupplierCity varchar(25) NOT NULL,
+	SupplierState char(2) NOT NULL,
+	SupplierCountry varchar(30) NOT NULL,
+	SupplierZip varchar(5) NOT NULL,
+	EmailAddress varchar(25) NOT NULL,
+	PhoneNumber varchar(15) NOT NULL,
+	CompanyName varchar(20) NOT NULL,
+	WarehouseID int FOREIGN KEY REFERENCES WAREHOUSE_T(WarehouseID),
+	LastUpdatedBy varchar(20) NOT NULL,
+	LastUpdated datetime NOT NULL,
+);
+
+
+CREATE TABLE SHIPMENT_T
+	(ShipmentID int identity(1,1) NOT NULL PRIMARY KEY,
+	SupplierProduct varchar(40) NOT NULL,
+	SupplierID int FOREIGN KEY REFERENCES SUPPLIER_T(SupplierID),
+	LastUpdatedBy varchar(20) NOT NULL,
+	LastUpdated datetime NOT NULL,
+);
+
+
+CREATE TABLE STORE_T
+	(StoreID int identity(1,1) NOT NULL PRIMARY KEY,
+	StoreStreet varchar(20) NOT NULL,
+	StoreCity varchar(25) NOT NULL,
+	StoreState char(2) NOT NULL,
+	StoreCountry varchar(30) NOT NULL,
+	StoreZip varchar(5) NOT NULL,
+	StoreName varchar(50) NOT NULL,
+	OpenTime varchar(8) NOT NULL,
+	CloseTime varchar(8) NOT NULL,
+	ShipmentID int FOREIGN KEY REFERENCES SHIPMENT_T(ShipmentID),
+	LastUpdatedBy varchar(20) NOT NULL,
+	LastUpdated datetime NOT NULL,
+);
+
+
+CREATE TABLE DEPARTMENT_T
+	(DepartmentID int identity(1,1) NOT NULL PRIMARY KEY,
+	DepartmentName varchar(40) NOT NULL,
+	StoreID int FOREIGN KEY REFERENCES STORE_T(StoreID),
+	LastUpdatedBy varchar(20) NOT NULL,
+	LastUpdated datetime NOT NULL,
+);
+
+
+CREATE TABLE EMPLOYEE_T
+	(EmployeeID int identity(1,1) NOT NULL PRIMARY KEY,
+	EmployeeFirstName varchar(20) NOT NULL,
+	EmployeeLastName varchar(20) NOT NULL,
+	DateOfBirth varchar(12) NULL,
+	EmployeeStreet varchar(20) NOT NULL,
+	EmployeeCity char(25) NOT NULL,
+	EmployeeState char(2) NOT NULL,
+	EmployeeCountry varchar(30) NOT NULL,
+	EmployeeZip varchar(5) NOT NULL,
+	EmailAddress varchar(35) NULL,
+	SupervisorID int NULL,
+	DepartmentID int FOREIGN KEY REFERENCES DEPARTMENT_T(DepartmentID),
+	LastUpdatedBy varchar(20) NOT NULL,
+	LastUpdated datetime NOT NULL,
+);
+
+
+CREATE TABLE EMPLOYEE_SKILL_T
+	(EmployeeID int identity(1,1) FOREIGN KEY REFERENCES EMPLOYEE_T(EmployeeID),
+	Skill varchar(50) NULL,
+	LastUpdatedBy varchar(20) NOT NULL,
+	LastUpdated datetime NOT NULL,
+); 
+
+
+CREATE TABLE ORDER_T
+	(OrderNumber varchar(15) NOT NULL PRIMARY KEY,
+	OrderDate varchar(12) NOT NULL,
+	ShipmentAddress varchar(40) NOT NULL,
+	CustomerID int FOREIGN KEY REFERENCES CUSTOMER_T(CustomerID),
+	EmployeeID int FOREIGN KEY REFERENCES EMPLOYEE_T(EmployeeID),
+	LastUpdatedBy varchar(20) NOT NULL,
+	LastUpdated datetime NOT NULL,
+);
+
+
+CREATE TABLE ORDER_DETAIL_T
+	(OrderNumber varchar(15) FOREIGN KEY REFERENCES ORDER_T(OrderNumber),
+	Price varchar(10) NOT NULL,
+	Quantity int NOT NULL,
+	ProductID int FOREIGN KEY REFERENCES PRODUCT_T(ProductID),
+	LastUpdatedBy varchar(20) NOT NULL,
+	LastUpdated datetime NOT NULL,
+);
+
+
+
+
+
+
+
+------------------------------------Indexes------------------------------------------------
+
+
+
+
+CREATE INDEX idx_CustomerName
+ON CUSTOMER_T (CustomerFirstName, CustomerLastName);
+
+
+
+CREATE INDEX idx_productName
+ON PRODUCT_T (ProductName);
+
+
+
+CREATE INDEX idx_NameDescription
+ON PRODUCT_CATEGORY_T (CategoryName, Description);
+
+
+
+CREATE INDEX idx_warehouseAddress
+ON WAREHOUSE_T (WarehouseStreet, WarehouseCity, WarehouseState);
+
+
+
+CREATE INDEX idx_supplierNameAddress
+ON SUPPLIER_T (CompanyName, SupplierStreet, SupplierCity, SupplierState);
+
+
+
+CREATE INDEX idx_shipmentProduct
+ON SHIPMENT_T (SupplierProduct);
+
+
+
+CREATE INDEX idx_StoreNameStreet
+ON STORE_T (StoreName, StoreStreet);
+
+
+
+CREATE INDEX idx_departmentName
+ON DEPARTMENT_T (DepartmentName);
+
+
+
+CREATE INDEX idx_employeeName
+ON EMPLOYEE_T (EmployeeFirstName, EmployeeLastName);
+
+
+CREATE INDEX idx_employeeskill
+ON EMPLOYEE_SKILL_T (EmployeeID, Skill);
+
+
+
+CREATE INDEX idx_orderDateAdress
+ON ORDER_T (OrderDate, ShipmentAddress);
+
+
+
+
+
+
+
+-----------------------------Insert Statements--------------------------
+
+
+INSERT INTO CUSTOMER_T VALUES ('John', 'Marshal', NULL, 'john123@gmail.com', '1052 Marshal Ln', 'Richmond', 'VA', 'United States', '21802', NULL,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO CUSTOMER_T VALUES ('Tofig', 'Gasimov', '12/20/1998', 'gasimov98@gmail.com', '1067 Devon Ln', 'Harrisonburg', 'VA', 'United States', '22801', '540-209-5969','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO CUSTOMER_T VALUES ('Carl', 'Dough', NULL, 'dough98@gmail.com', '1054 Devon Ln', 'Harrisonburg', 'VA', 'United States', '22801', '540-209-5556','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO CUSTOMER_T VALUES ('Maga', 'Barella', '06/15/1994', 'barella94@gmail.com', '1040 Shovket Ln', 'Norfolk', 'VA', 'United States', '23804', '540-209-5767','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO CUSTOMER_T VALUES ('Jessica', 'Gurban', '12/12/1993', 'gurban93@gmail.com', '1050 Fox Ln', 'Harrisonburg', 'VA', 'United States', '22801', '540-209-5333','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO CUSTOMER_T VALUES ('Sally', 'Romary', '03/22/1995', 'romary12@gmail.com', '1067 Squire Ln', 'Roanoke', 'VA', 'United States', '24805', '540-209-5464','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO CUSTOMER_T VALUES ('Merry', 'Donald', NULL, 'donald155@gmail.com', '1065 Squire Ln', 'Roanoke', 'VA', 'United States', '24805', '540-209-2565','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO CUSTOMER_T VALUES ('Karen', 'Duck', '11/04/1990', 'karen78@gmail.com', '1057 Devon Ln', 'Harrisonburg', 'VA', 'United States', '22801', '540-209-1272','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO CUSTOMER_T VALUES ('Anna', 'Karenina', '12/20/1994', 'karenina@gmail.com', '1065 Devon Ln', 'Harrisonburg', 'VA', 'United States', '22801', '540-209-7565','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO CUSTOMER_T VALUES ('Carl', 'Charleston', '10/18/1998', 'carl98@gmail.com', '1054 Lois Ln', 'Harrisonburg', 'VA', 'United States', '22801', '540-209-2777','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO CUSTOMER_T VALUES ('Kenne', 'Garla', '10/18/1995', 'garla98@gmail.com', '1032 Lois Ln', 'Harrisonburg', 'VA', 'United States', '22801', '540-210-2777','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO CUSTOMER_T VALUES ('Kanye', 'West', '10/18/1992', 'gracias98@gmail.com', '1032 Davon Ln', 'Harrisonburg', 'VA', 'United States', '22801', '540-205-2777','Tofig Gasimov',CURRENT_TIMESTAMP)
+
+
+
+INSERT INTO PRODUCT_T VALUES ('Aburel Hand Sanitizer', 5, 3, '$ 7.59', NULL, 'Anti-bacterial hand sanitizer for hand','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO PRODUCT_T VALUES ('High Hand Wipes', 5, 3, '$ 5.59', NULL, 'Anti-bacterial wipes for sanitizing hands','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO PRODUCT_T VALUES ('Nurofen Liquid Powder', 6, 4, '$ 4.79', '12/20/2022', 'Immune boosting liquid powder','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO PRODUCT_T VALUES ('Strepsils candy', 7, 5, '$ 10.59', '11/03/2023', 'Candy for sore throat','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO PRODUCT_T VALUES ('Nightquil', 8, 6, '$ 12.49', '12/12/2021', 'Medicine for cold and flu','Tofig Gasimov',CURRENT_TIMESTAMP)
+
+
+INSERT INTO PRODUCT_CATEGORY_T VALUES (1, 'Antiseptic Hand Washes', 'Hand sanitizers',1,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO PRODUCT_CATEGORY_T VALUES (2, 'Antiseptic Hand Washes', 'Hand Wipes',2,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO PRODUCT_CATEGORY_T VALUES (3, 'Pharmaceutical medicine', 'Fever',3,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO PRODUCT_CATEGORY_T VALUES (4, 'Pharmaceutical medicine', 'Sore throat',4,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO PRODUCT_CATEGORY_T VALUES (5, 'Pharmaceutical medicine', 'Fever',5,'Tofig Gasimov',CURRENT_TIMESTAMP)
+
+
+INSERT INTO WAREHOUSE_T VALUES ('1055 Port Republic Rd', 'Richmond', 'VA', 'United States', '21802', '540-209-0647','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO WAREHOUSE_T VALUES ('1050 Anabell Ln', 'Norfolk', 'VA', 'United States', '23804', '540-278-8960','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO WAREHOUSE_T VALUES ('1070 North Folk Ln', 'Harrisonburg', 'VA', 'United States', '22801', '540-250-6575','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO WAREHOUSE_T VALUES ('1044 Southview Ln', 'Roanoke', 'VA', 'United States', '24805', '540-208-8505','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO WAREHOUSE_T VALUES ('1076 Newsome Ln', 'Harrisonburg', 'VA', 'United States', '22801', '540-608-5567','Tofig Gasimov',CURRENT_TIMESTAMP)
+
+
+INSERT INTO SUPPLIER_T VALUES ('1049 Alibath Ln', 'Richmond', 'VA', 'United States', '21802', 'alibath@gmail.com','540-340-6556','Mercke',1,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO SUPPLIER_T VALUES ('1045 Aglamali Ln', 'Norfolk', 'VA', 'United States', '23804', 'aglamali12@gmail.com','540-409-4556','CVSE',2,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO SUPPLIER_T VALUES ('1047 Republic Rd', 'Harrisonburg', 'VA', 'United States', '22801', 'repub12@gmail.com','540-209-9665','WHO',3,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO SUPPLIER_T VALUES ('1038 Fox Ln',  'Roanoke', 'VA', 'United States', '24805', 'foxhill155@gmail.com','540-225-2565','CSSE',4,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO SUPPLIER_T VALUES ('1077 Squirrel Ln', 'Harrisonburg', 'VA', 'United States', '22801', 'squireel55@gmail.com','540-210-6556','EPSS',5,'Tofig Gasimov',CURRENT_TIMESTAMP)
+
+
+INSERT INTO SHIPMENT_T VALUES ('Aburel Hand Sanitizer',1,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO SHIPMENT_T VALUES ('High Hand Wipes',2,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO SHIPMENT_T VALUES ('Nurofen Liquid Powder',3,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO SHIPMENT_T VALUES ('Strepsils candy',4,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO SHIPMENT_T VALUES ('Nightquil',5,'Tofig Gasimov',CURRENT_TIMESTAMP)
+
+
+INSERT INTO STORE_T VALUES ('1044 Agdamli Ln', 'Richmond', 'VA', 'United States', '21802', 'Ban grocery','09:00am','05:00pm',1,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO STORE_T VALUES ('1025 South Folk Ln', 'Norfolk', 'VA', 'United States', '23804', 'Pean Grocery','09:00am','08:00pm',2,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO STORE_T VALUES ('1065 North Square Ln', 'Harrisonburg', 'VA', 'United States', '22801', 'Walm Grocery','09:00am','08:00pm',3,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO STORE_T VALUES ('1043 Aygul Ln', 'Roanoke', 'VA', 'United States', '24805', 'WMO Grocery','09:00am','09:00pm',4,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO STORE_T VALUES ('1023 Washington Ln', 'Harrisonburg', 'VA', 'United States', '22801','HBS Grocery','09:00am','09:00pm',5,'Tofig Gasimov',CURRENT_TIMESTAMP)
+
+
+INSERT INTO DEPARTMENT_T VALUES ('Health',1,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO DEPARTMENT_T VALUES ('Health',2,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO DEPARTMENT_T VALUES ('Health',3,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO DEPARTMENT_T VALUES ('Health',4,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO DEPARTMENT_T VALUES ('Health',5,'Tofig Gasimov',CURRENT_TIMESTAMP)
+
+
+INSERT INTO EMPLOYEE_T VALUES ('James','Butt',NULL,'1062 Lais Ln', 'Richmond', 'VA', 'United States', '21802','jbutt@gmail.com',15678,1,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_T VALUES ('Josephine','Darajky','07/12/1990','1032 Davon Ln', 'Richmond', 'VA', 'United States', '21802','darakjy@darakjy.org',NULL,1,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_T VALUES ('Art','Venere', '05/05/1993','1052 Hetcbek Ln', 'Richmond', 'VA', 'United States', '21802','art@venere.org',NULL,1,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_T VALUES ('Lenna','Paprocki', NULL,'1072 Sedan Ln', 'Norfolk', 'VA', 'United States', '23804','lpaprocki@hotmail.com',NULL,2,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_T VALUES ('Donette','Foller','06/07/1989','1055 Amaras Ln', 'Norfolk', 'VA', 'United States', '23804','donette.foller@cox.net',16789,2,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_T VALUES ('Simona','Morasca','12/12/1990','1072 Hele Ln', 'Norfolk', 'VA', 'United States', '23804','simona@morasca.com',NULL,2,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_T VALUES ('Mitsue','Tollner',NULL,'1032 Aygulla Ln', 'Harrisonburg', 'VA', 'United States', '22801','tollner@yahoo.com',NULL,3,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_T VALUES ('Leota','Dilliard',NULL,'1076 Bele Ln', 'Harrisonburg', 'VA', 'United States', '22801','leota@hotmail.com',13457,3,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_T VALUES ('Sage','Wieser','03/02/1985','1098 Night Ln', 'Harrisonburg', 'VA', 'United States', '22801','sage_wieser@cox.net',NULL,3,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_T VALUES ('Kris','Marrier','05/07/1990','1189 South Ln', 'Roanoke', 'VA', 'United States', '24805','kris@gmail.com',NULL,4,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_T VALUES ('Graciela','Ruta','03/07/1985','1225 Ora Ln', 'Roanoke', 'VA', 'United States', '24805','minna_amigon@yahoo.com',NULL,4,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_T VALUES ('Cammy','Albares','08/09/1990','1165 Kian Ln', 'Roanoke', 'VA', 'United States', '24805','amaclead@gmail.com',12905,4,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_T VALUES ('Mattie','Poquette',NULL,'1150 Besdi Ln', 'Roanoke', 'VA', 'United States', '24805','caldarera@aol.com',NULL,4,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_T VALUES ('Meaghem','Garufi','12/05/1984','1245 Heledi Ln',  'Richmond', 'VA', 'United States', '21802','gruta@cox.net',NULL,1,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_T VALUES ('Gladys','Garufi','12/01/1990','1678 Buralar Ln', 'Richmond', 'VA', 'United States', '21802','calbares@gmail.com',NULL,1,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_T VALUES ('Yuki','Whobrey','12/07/1990','1890 Alama Ln', 'Harrisonburg', 'VA', 'United States', '22801','mattie@aol.com',NULL,5,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_T VALUES ('Alisha','Slurski','12/05/1982','1989 Eleme Ln', 'Harrisonburg', 'VA', 'United States', '22801','meaghan@hotmail.com',11565,5,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_T VALUES ('Bette','Nicka','12/05/1990','1879 Worriland Ln', 'Harrisonburg', 'VA', 'United States', '22801','gladys.rim@rim.org',NULL,5,'Tofig Gasimov',CURRENT_TIMESTAMP)
+
+
+INSERT INTO EMPLOYEE_SKILL_T VALUES('Analyzing quantitative data','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_SKILL_T VALUES('Decision making and problem solving','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_SKILL_T VALUES('Creating and editing written reports','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_SKILL_T VALUES('Critical thinking','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_SKILL_T VALUES('Working well in a team','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_SKILL_T VALUES('Creating and editing written reports','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_SKILL_T VALUES('Critical thinking','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_SKILL_T VALUES('Decision making and problem solving','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_SKILL_T VALUES('Creating and editing written reports','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_SKILL_T VALUES('Analyzing quantitative data','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_SKILL_T VALUES('Decision making and problem solving','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_SKILL_T VALUES('Creating and editing written reports','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_SKILL_T VALUES('Analyzing quantitative data','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_SKILL_T VALUES('Creating and editing written reports','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_SKILL_T VALUES('Working well in a team','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_SKILL_T VALUES('Analyzing quantitative data','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_SKILL_T VALUES('Creating and editing written reports','Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO EMPLOYEE_SKILL_T VALUES('Decision making and problem solving','Tofig Gasimov',CURRENT_TIMESTAMP)
+
+
+INSERT INTO ORDER_T VALUES ('09ab76cd','07/05/2020','1052 Marshal Ln',1,1,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO ORDER_T VALUES ('07adb67n','07/04/2020','1067 Devon Ln',2,8,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO ORDER_T VALUES ('08hayg89','07/05/2020','1054 Devon Ln',3,8,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO ORDER_T VALUES ('67hs65af','07/04/2020','1040 Shovket Ln',4,5,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO ORDER_T VALUES ('78cjdh89','07/05/2020','1050 Fox Ln',5,8,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO ORDER_T VALUES ('54acd76h','07/04/2020','1067 Squire Ln',6,12,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO ORDER_T VALUES ('43asrthc','07/04/2020','1065 Squire Ln',7,12,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO ORDER_T VALUES ('45aseg56','07/05/2020','1057 Devon Ln',8,17,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO ORDER_T VALUES ('03frth56','07/04/2020','1065 Devon Ln',9,17,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO ORDER_T VALUES ('08thy67n','07/04/2020','1052 Lois Ln',10,17,'Tofig Gasimov',CURRENT_TIMESTAMP)
+
+
+INSERT INTO ORDER_DETAIL_T VALUES ('09ab76cd','$ 7.59',1,1,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO ORDER_DETAIL_T VALUES ('07adb67n','$ 5.59',2,2,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO ORDER_DETAIL_T VALUES ('08hayg89','$ 7.59',2,1,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO ORDER_DETAIL_T VALUES ('67hs65af','$ 4.79',1,3,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO ORDER_DETAIL_T VALUES ('78cjdh89','$ 10.59',2,4,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO ORDER_DETAIL_T VALUES ('54acd76h','$ 12.49',1,5,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO ORDER_DETAIL_T VALUES ('43asrthc','$ 5.59',2,2,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO ORDER_DETAIL_T VALUES ('45aseg56','$ 4.79',1,3,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO ORDER_DETAIL_T VALUES ('03frth56','$ 5.59',2,2,'Tofig Gasimov',CURRENT_TIMESTAMP)
+INSERT INTO ORDER_DETAIL_T VALUES ('08thy67n','$ 12.49',1,5,'Tofig Gasimov',CURRENT_TIMESTAMP)
+
+
+
+
+
+---------------------------------------------Transactions--------------------------------
+
+
+1) Updating Last name of Customer whose customerid=3
+
+UPDATE CUSTOMER_T
+SET CustomerLastName='Carleone'
+WHERE CustomerID=4;
+
+
+
+2) Deleting row from Employee_Skill table where Employee ID = 3
+
+DELETE FROM EMPLOYEE_SKILL_T WHERE EmployeeID=3;
+
+
+
+3) Adding a new column to Customer table named as OrderConfirmNumber
+
+ALTER TABLE CUSTOMER_T
+ADD OrderConfirmNumber varchar(10);
+
+
+
+4) Modifying data type of EmailAddress from Employee Table
+
+ALTER TABLE EMPLOYEE_T ALTER COLUMN EmailAddress varchar(50);
+
+
+
+5) Deleting column from Customer table named as OrderConfirmNumber
+
+ALTER TABLE CUSTOMER_T DROP COLUMN OrderConfirmNumber;
+
+
+
+
+-----------------------------Queries----------------------------------
+
+
+
+1)	Inner Join with two tables:
+
+Description: The Inner join joins and lists two tables-Order and Customer according to the matching value of CustomerID 
+              in both tables with fields like Order Number and Customer name (First and Last).
+
+SELECT OrderNumber, concat(CustomerFirstName ,' ', CustomerLastName) AS Customer
+FROM CUSTOMER_T
+INNER JOIN ORDER_T
+ON ORDER_T.CustomerID = CUSTOMER_T.CustomerID;
+
+ 
+
+2)	Left Outer Join
+
+Description: The Left Outer join joins and lists two tables-Order and Customer according to the matching 
+value of CustomerID in both tables plus Customer IDs from the Customer table that do not match any
+ Customer ID in the  Order table with fields as Order Number and Customer name (First and Last).
+
+SELECT OrderNumber, concat(CustomerFirstName ,' ', CustomerLastName) AS Customer
+FROM CUSTOMER_T
+LEFT JOIN ORDER_T
+ON ORDER_T.CustomerID = CUSTOMER_T.CustomerID;
+
+ 
+
+
+3)	Union Query
+
+Description: Combines and lists the result of selected fields from Customer table-First name, 
+Last name, City, Country and Phone numbers of customers with the selected fields from Supplier table
+-Company name, City, Country and Phone numbers of suppliers.
+
+SELECT 'Customer' As Type,
+      CustomerFirstName + ' ' + CustomerLastName AS ContactName,
+      CustomerCity AS City, CustomerCountry AS Country, PhoneNumber
+ FROM CUSTOMER_T
+UNION
+SELECT 'Supplier',
+      CompanyName, SupplierCity, SupplierCountry, PhoneNumber
+ FROM SUPPLIER_T
+ 
+
+
+4)	Where clause
+
+Description: Lists all rows from customer table whose city is Harrisonburg
+
+SELECT * FROM CUSTOMER_T
+WHERE CustomerCity='Harrisonburg';
+ 
+
+
+
+5)	Group by and Having
+
+Description: Lists the number of customers in each city, sorted high to low and includes cities with more than 0 customers. 
+
+SELECT COUNT(CustomerID) AS #CustomerInCity, CustomerCity
+FROM CUSTOMER_T
+GROUP BY CustomerCity
+HAVING COUNT(CustomerID) > 0
+ORDER BY COUNT(CustomerID) DESC;
+
+ 
+
+
+6)	Inner join with three tables
+
+Description: Joins three tables-Product, Order and Order detail according to the matching value
+of Product ID between Product and Order detail tables and the matching value of OrderNumber
+between Order detail and Order tables with the selected fields like Price, Quantity from Order 
+detail table.
+
+SELECT     PRODUCT_T.ProductName, ORDER_T.OrderNumber, ORDER_DETAIL_T.Price, 
+			ORDER_DETAIL_T.Quantity
+FROM        PRODUCT_T INNER JOIN
+                  ORDER_DETAIL_T ON 
+				  PRODUCT_T.ProductID = ORDER_DETAIL_T.ProductID INNER JOIN
+                  ORDER_T 
+				  ON ORDER_DETAIL_T.OrderNumber = ORDER_T.OrderNumber 
+ 
+
+
+
+
+7)	Count
+
+Description: Counts Product category names per product category with grouping 
+by Category name.
+
+SELECT CategoryName, COUNT(*) AS "CountPerCategory"
+FROM PRODUCT_CATEGORY_T
+GROUP BY CategoryName;
+
+ 
+
+
+
+-----------------------------------  Procedures--------------------
+
+
+1)	Stored procedure
+
+CREATE PROCEDURE procedure_Tables
+AS
+
+SELECT * FROM CUSTOMER_T
+SELECT * FROM PRODUCT_T
+SELECT * FROM PRODUCT_CATEGORY_T
+SELECT * FROM WAREHOUSE_T
+SELECT * FROM SUPPLIER_T
+SELECT * FROM SHIPMENT_T
+SELECT * FROM STORE_T
+SELECT * FROM DEPARTMENT_T
+SELECT * FROM EMPLOYEE_T
+SELECT * FROM EMPLOYEE_SKILL_T
+SELECT * FROM ORDER_T
+SELECT * FROM ORDER_DETAIL_T
+
+GO;
+
+
+Execution:
+
+EXEC procedure_Tables;
+
+
+
+
+2)	Trigger procedure
+
+
+
+CREATE TRIGGER Customer_Update ON CUSTOMER_T
+AFTER UPDATE
+AS
+IF
+
+UPDATE(EmailAddress)
+BEGIN
+DECLARE
+@EmailAddress varchar(35)
+SELECT @EmailAddress=( select EmailAddress from Inserted)
+UPDATE CUSTOMER_T
+SET LastUpdatedBy='Tofig Gasimov',LastUpdated=GETDATE()
+WHERE EmailAddress=@EmailAddress
+END
+
+
+
+
+
+
+
+-------------------Drop Table statements-----------------------------
+
+
+
+   	DROP TABLE ORDER_DETAIL_T;
+
+
+	DROP TABLE ORDER_T;
+
+
+	DROP TABLE EMPLOYEE_SKILL_T;
+
+
+	DROP TABLE EMPLOYEE_T;
+
+
+	DROP TABLE DEPARTMENT_T;
+
+
+	DROP TABLE STORE_T;
+
+
+	DROP TABLE SHIPMENT_T;
+
+
+	DROP TABLE SUPPLIER_T;
+
+
+	DROP TABLE WAREHOUSE_T;
+
+
+	DROP TABLE PRODUCT_CATEGORY_T;
+
+
+	DROP TABLE PRODUCT_T;
+
+
+	DROP TABLE CUSTOMER_T;
+
